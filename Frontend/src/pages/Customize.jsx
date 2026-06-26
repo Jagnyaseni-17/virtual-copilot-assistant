@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import Card from '../components/Card'
 import image1 from "../assets/VA1.jpg"
 import image2 from "../assets/VA2.png"
@@ -8,11 +8,18 @@ import image5 from "../assets/VA5.png"
 import image6 from "../assets/VA6.png"
 import image7 from "../assets/VA7.png"
 import {RiImageAddLine} from "react-icons/ri"
+import { userDataContext } from '../context/userContext'
+import { useNavigate } from 'react-router-dom'
 
 function Customize() {
-  const [frontendImage,setFrontendImage] = useState(null)
-  const [backendImage,setBackendImage] = useState(null)
+  const {serverUrl,userData,setUserData,frontendImage,setFrontendImage,backendImage,setBackendImage,selectedImage,setSelectedImage} = useContext(userDataContext)
   const inputImage = useRef()
+  const navigate = useNavigate
+  const handleImage=(e)=>{
+    const file = e.target.files[0]
+    setBackendImage(file)
+    setFrontendImage(URL.createObjectURL(file))
+  }
   return (
     <div className='w-full h-[100vh] bg-gradient-to-t from-[black] to-[#030353] flex justify-center items-center flex-col p-[20px]'>
       <h1 className='text-white mb-[40px] text-[30px] text-center'>Select your <span className='text-blue-200'>Assistant Image</span></h1>
@@ -24,12 +31,17 @@ function Customize() {
         <Card image={image5}/>
         <Card image={image6}/>
         <Card image={image7}/>
-        <div className='w-[70px] h-[140px] lg:w-[150px] lg:h-[250px] bg-[#020220] border-2 border-[#0000ff66] rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-blue-950 cursor-pointer hover-border-4 hover:border-white flex items-center justify-center' onClick={()=>inputImage.current.click()}>
-          <RiImageAddLine className='text-white w-[25px] h-[25px]'/>
+        <div className={`w-[70px] h-[140px] lg:w-[150px] lg:h-[250px] bg-[#020220] border-2 border-[#0000ff66] rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-blue-950 cursor-pointer hover-border-4 hover:border-white flex items-center justify-center ${selectedImage==input?"border-4 border-white shadow-2xl shadow-blue-950":null}`} 
+        onClick={()=>{
+          inputImage.current.click()
+          setSelectedImage("input")
+        }}>
+          {!frontendImage && <RiImageAddLine className='text-white w-[25px] h-[25px]'/>}
+          {frontendImage && <img src={frontendImage} className='h-full object-cover'/>}
         </div>
-        <input type='file' accept='image/*' ref={inputImage} hidden/>
+        <input type='file' accept='image/*' ref={inputImage} hidden onChange={handleImage}/>
       </div>
-      <button className="min-w-[150px] h-[60px] mt-[30px] text-black font-semibold bg-white rounded-full text-[19px]">Next</button>
+      {selectedImage && <button className="min-w-[150px] h-[60px] mt-[30px] text-black font-semibold bg-white rounded-full text-[19px] cursor-pointer" onClick={()=>navigate("/customize2")}>Next</button>}
     </div>
   )
 }
